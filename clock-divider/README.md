@@ -1,6 +1,14 @@
 Clock divider
 =============
 
+
+Changes to make :
+- output protection
+- remove manual reset, replace with trigger/gate switch
+- standalone atmega328p board
+
+
+
 A DIY Arduino-powered clock divider in 4HP, with 3D-printed faceplate.
 
 **[Arduino code][1]** | **[3D model][2]** | **[Plate design][3]** | **[Muff Wiggler][4]**
