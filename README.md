@@ -13,7 +13,7 @@ A DIY Arduino-powered clock divider in 4HP, with 3D-printed faceplate.
 
 **[Arduino code][1]** | **[Schematics][2]** | **[Plate design][3]**
 
-[1]: firmaware/clock-divider.ino
+[1]: firmware/clock-divider.ino
 [2]: hardware/
 [3]: cad/
 
