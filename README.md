@@ -11,12 +11,11 @@ Changes to make :
 
 A DIY Arduino-powered clock divider in 4HP, with 3D-printed faceplate.
 
-**[Arduino code][1]** | **[3D model][2]** | **[Plate design][3]** | **[Muff Wiggler][4]**
+**[Arduino code][1]** | **[Schematics][2]** | **[Plate design][3]**
 
-[1]: clock-divider.ino
-[2]: plate.stl
-[3]: plate.svg
-[4]: https://www.muffwiggler.com/forum/viewtopic.php?t=214669
+[1]: firmaware/clock-divider.ino
+[2]: hardware/
+[4]: cad/
 
 Features
 --------
