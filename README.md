@@ -1,32 +1,40 @@
-Arduino Eurorack projects
-=========================
+Clock divider
+=============
 
-DIY Eurorack projects with Arduino and common C++ libraries.
 
-Modules
--------
+Changes to make :
+- output protection
+- remove manual reset, replace with trigger/gate switch
+- standalone atmega328p board
 
-Each module has its own detailed README file.
 
-- [Clock divider](clock-divider/): clock divider in 4HP.
-- [Forks](forks/): two Bernoulli gates, clone of Mutable Instruments Branches.
-- [In CV](in-cv/): virtual ensemble that plays Terry Riley's "In C" on CV/gate outputs.
-- [MIDI 4+1](midi4plus1/): polyphonic and monophonic MIDI to 4x CV/gate interface in 6HP.
 
-Libraries and tools
--------------------
+A DIY Arduino-powered clock divider in 4HP, with 3D-printed faceplate.
 
-- [Button class](lib/Button.cpp): convenient reading methods, debouncing, combined single and long-press, internal pull-up usage.
-- [Knob class](lib/Knob.cpp): analog value reading with low/high thresholds.
-- [LED class](lib/Led.cpp): handles minimum duration to ensure visibility, implements blinking, toggle, flash.
-- [MCP4728 class](lib/MCP4728.cpp): extends [Hideaki Tai's lib](https://github.com/hideakitai/MCP4728) to include DACs calibration and optional LDAC. Sketches for [setting I2C address (device ID)](tools/mcp4728_addr) and [guiding the calibration process](tools/mcp4728_calibration) are provided.
-- [MM74HC595M class](lib/MM74HC595M.cpp): simple wrapper around `shiftOut()` to handle 74HC595 shift registers.
+**[Arduino code][1]** | **[3D model][2]** | **[Plate design][3]** | **[Muff Wiggler][4]**
 
-### Note about the library folder
+[1]: clock-divider.ino
+[2]: plate.stl
+[3]: plate.svg
+[4]: https://www.muffwiggler.com/forum/viewtopic.php?t=214669
 
-There's a symbolic link of the `lib/` folder in every module folder. If the link doesn't work for you, you won't be able to compile: try to manually copy and paste the entire `lib/` folder from the root next to the sketch you are trying to compile. Unfortunately the Arduino compiler does not allow including source files from parent folders.
+Features
+--------
 
-License
--------
+- Divides incoming clock signal by 2, 3, 4, 5, 6, 8, 16, 32 (configurable in code).
+- Reset as trigger or manual button.
+- Down-beat counting.
+- Trigger mode: duration of incoming pulses is preserved on outputs.
+- Gate-mode: duration of the output pulses is 50% of divided tempo, enabled by long-pressing the manual reset button.
 
-Code: [GPL 3.0](LICENSE), everything else: free domain.
+Circuit
+--------
+
+The following is just a hint for a possible circuit implementation.
+
+![](schematic.png)
+
+Pictures
+--------
+
+<img src="pictures/IMG_20190107_215258.jpg" width="420"> <img src="pictures/IMG_20190112_155043.jpg" width="420"> <img src="pictures/IMG_20190112_163027.jpg" width="420"> <img src="pictures/IMG_20190112_224337.jpg" width="420"> <img src="pictures/IMG_20190306_214855.jpg" width="420"> <img src="pictures/IMG_20190307_225219.jpg" width="420">
