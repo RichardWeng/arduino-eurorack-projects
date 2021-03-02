@@ -30,9 +30,9 @@ Features
 Circuit
 --------
 
-The following is just a hint for a possible circuit implementation.
+Original joeSeggiola schematic
 
-![](schematic.png)
+![](docs/schematic.png)
 
 Pictures
 --------
