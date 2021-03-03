@@ -3,10 +3,10 @@ Clock divider
 
 
 Changes to make :
-- output protection
+- output protection (1k resistor on outputs)
 - remove manual reset, replace with trigger/gate switch
 - standalone atmega328p board
-
+- division switch (like Doepfer A160-2) ?
 
 
 A DIY Arduino-powered clock divider in 4HP, with 3D-printed faceplate.
