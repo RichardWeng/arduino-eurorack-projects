@@ -1,3 +1,2 @@
-*.fcstd1
-tools/mcp4728_calibration/mcp4728_calibration_data.*
-tools/test
+# backup files
+*.bak
