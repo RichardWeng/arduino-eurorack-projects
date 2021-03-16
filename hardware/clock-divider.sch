@@ -704,8 +704,8 @@ Wire Wire Line
 	2050 3850 2200 3850
 Wire Wire Line
 	2050 3750 2200 3750
-Text Notes 1100 5300 0    50   ~ 0
-Make use of internal pullups for inputs
+Text Notes 1050 5250 0    50   ~ 0
+Make use of internal pullups for digital inputs
 NoConn ~ 850  1850
 Text GLabel 2200 2750 2    50   Input ~ 0
 ADCIN
@@ -2071,4 +2071,8 @@ F 3 "" H 8200 1500 50  0001 C CNN
 	1    8200 1500
 	1    0    0    -1  
 $EndComp
+Text Notes 7800 800  0    100  ~ 0
+Programming / debuging headers
+Text Notes 7550 2500 0    100  ~ 0
+Power
 $EndSCHEMATC
