@@ -1,7 +1,7 @@
 	
 // CONFIGURATION =============================================================
 
-const bool DEBUG = false; // FALSE to disable debug messages on serial port
+const bool DEBUG = true; // FALSE to disable debug messages on serial port
 
 const int CLOCK_INPUT = 2; // Input signal pin, must be usable for interrupts
 const int CLOCK_LED = 1; // LED pin for input signal indication
@@ -43,9 +43,19 @@ void setup() {
 	
 	// Number of divisions
 	n = sizeof(DIVISIONS) / sizeof(DIVISIONS[0]);
-	
+
+
+
+
+  /*
 	// Trig/gate mode from permanent storage
 	gateMode = EEPROM.read(MODE_EEPROM_ADDRESS) == 1;
+ */
+
+  gateMode = 0;
+
+
+ 
 	
 	// Input
 	resetButton.init(RESET_BUTTON, BUTTON_DEBOUNCE_DELAY);
@@ -91,6 +101,9 @@ void loop() {
 			
 			// Clock rising, update counter
 			if (resetFlag) {
+        if (DEBUG) {
+           Serial.println("RESET //////////////////////////////////");
+         }
 				resetFlag = false;
 				count = 0;
 			} else {
@@ -112,13 +125,19 @@ void loop() {
 		}
 		
 	}
-	
+
+
+
+/*  
 	// Mode switch
 	if (resetButton.readLongPressOnce(MODE_SWITCH_LONG_PRESS_DURATION_MS)) {
 		gateMode = !gateMode;
 		EEPROM.update(MODE_EEPROM_ADDRESS, gateMode ? 1 : 0); // Mode selection on permanent storage
 	}
-	
+*/
+
+
+  
 	// Update LEDs
 	clockLed.loop();
 	for (int i = 0; i < n; i++) leds[i].loop();
