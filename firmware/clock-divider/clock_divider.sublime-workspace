@@ -11,7 +11,7 @@
 			"file": "clock-divider.ino",
 			"settings":
 			{
-				"buffer_size": 4963,
+				"buffer_size": 4973,
 				"encoding": "UTF-8",
 				"line_ending": "Windows"
 			}
@@ -62,6 +62,11 @@
 		"side_bar_visible": false,
 		"status_bar_visible": false
 	},
+	"expanded_folders":
+	[
+		"//Documents/Laurent/Mes Documents/DIY/Eurorack/Clock divider/clock-divider/firmware/clock-divider",
+		"//Documents/Laurent/Mes Documents/DIY/Eurorack/Clock divider/clock-divider/firmware/clock-divider/lib"
+	],
 	"file_history":
 	[
 		"//Documents/Laurent/Mes Documents/DIY/Eurorack/Clock divider/clock-divider/firmware/clock-divider/lib/Led.cpp",
@@ -133,7 +138,7 @@
 	],
 	"find":
 	{
-		"height": 27.0
+		"height": 40.0
 	},
 	"find_in_files":
 	{
@@ -147,6 +152,7 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"reset",
 			"clockLed",
 			"drive",
 			"tokyo face",
@@ -245,15 +251,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 4963,
+						"buffer_size": 4973,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								570,
-								571
+								1360,
+								1360
 							]
 						],
 						"settings":
@@ -396,7 +402,7 @@
 	"show_open_files": true,
 	"show_tabs": true,
 	"side_bar_visible": true,
-	"side_bar_width": 150.0,
+	"side_bar_width": 204.0,
 	"status_bar_visible": true,
 	"template_settings":
 	{

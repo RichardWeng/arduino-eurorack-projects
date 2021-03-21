@@ -6,7 +6,7 @@ const bool DEBUG = true; // FALSE to disable debug messages on serial port
 const int CLOCK_INPUT = 2; // Input signal pin, must be usable for interrupts
 const int CLOCK_LED = 1; // LED pin for input signal indication
 const int RESET_INPUT = 3; // Reset signal pin, must be usable for interrupts
-const int RESET_BUTTON = 12; // Reset button pin
+//const int RESET_BUTTON = 12; // Reset button pin
 
 const int DIVISIONS[] { 2, 3, 4, 5, 6, 8, 16, 32 }; // Integer divisions of the input clock (max 32 values)
 const int DIVISIONS_OUTPUT[] { 4, 5, 6, 7, 8, 9, 10, 11 }; // Output pins
@@ -28,7 +28,7 @@ bool gateMode = false; // TRUE if gate mode is active, FALSE if standard trig mo
 
 Led clockLed; // Input LED
 Led leds[32]; // Output LEDs
-Button resetButton;
+//Button resetButton;
 
 volatile bool clock = false; // Clock signal digital reading, set in the clock ISR
 volatile bool clockFlag = false; // Clock signal change flag, set in the clock ISR
@@ -58,7 +58,7 @@ void setup() {
  
 	
 	// Input
-	resetButton.init(RESET_BUTTON, BUTTON_DEBOUNCE_DELAY);
+	//resetButton.init(RESET_BUTTON, BUTTON_DEBOUNCE_DELAY);
 	
 	// Setup outputs (divisions and LEDs)
 	clockLed.init(CLOCK_LED, LED_MIN_DURATION_MS);
@@ -79,11 +79,11 @@ void setup() {
 void loop() {
 	
 	// Read manual reset button and set the flag
-	if (!resetFlag) {
+	/*if (!resetFlag) {
 		if (resetButton.read()) {
 			resetFlag = true;
 		}
-	}
+	}*/
 
 	// Clock signal changed
 	if (clockFlag) {
