@@ -1,11 +1,12 @@
 	
 // CONFIGURATION =============================================================
 
-const bool DEBUG = false; // FALSE to disable debug messages on serial port
+const bool DEBUG = true; // FALSE to disable debug messages on serial port
 
 const int CLOCK_INPUT = 2; // Input signal pin, must be usable for interrupts
 const int RESET_INPUT = 3; // Reset signal pin, must be usable for interrupts
-//const int RESET_BUTTON = 12; // Reset button pin
+
+const int GATE_MODE_SWITCH = A3; // 2 positions switch to chose between gate and trigger mode 
 
 const int DIVISIONS[] 		 { 2, 3, 4, 5, 6, 8, 16, 32 }; // Integer divisions of the input clock (max 32 values)
 const int DIVISIONS_OUTPUT[] { 4, 5, 6, 7, 8, 9, 10, 11 }; // Output pins
@@ -15,8 +16,7 @@ const unsigned long BUTTON_DEBOUNCE_DELAY = 50; // Debounce delay for all button
 
 // ===========================================================================
 
-#include <EEPROM.h>
-#include "lib/Button.cpp"
+//#include "lib/Button.cpp"
 
 unsigned int n = 0; // Number of divisions
 long count = -1; // Input clock counter, -1 in order to go to 0 no the first pulse
@@ -28,8 +28,6 @@ volatile bool clock = false; // Clock signal digital reading, set in the clock I
 volatile bool clockFlag = false; // Clock signal change flag, set in the clock ISR
 volatile bool resetFlag = false; // Reset flag, set in the reset ISR
 
-const int MODE_EEPROM_ADDRESS = 0;
-
 void setup() {
 	
 	// Debugging
@@ -37,72 +35,65 @@ void setup() {
 	
 	// Number of divisions
 	n = sizeof(DIVISIONS) / sizeof(DIVISIONS[0]);
-
-
-//==========================================================================
-
-  /*
-	// Trig/gate mode from permanent storage
-	gateMode = EEPROM.read(MODE_EEPROM_ADDRESS) == 1;
- */
-
-  gateMode = 0;
-
-//==========================================================================
- 
 	
 	// Input
 	//resetButton.init(RESET_BUTTON, BUTTON_DEBOUNCE_DELAY);
+  	pinMode(CLOCK_INPUT, INPUT);
+	pinMode(RESET_INPUT, INPUT_PULLUP);
+	pinMode(GATE_MODE_SWITCH, INPUT_PULLUP);
 	
-	// Setup outputs (divisions and LEDs)
+	// Setup outputs
 	for (int i = 0; i < n; i++) {
 		pinMode(DIVISIONS_OUTPUT[i], OUTPUT);
 		digitalWrite(DIVISIONS_OUTPUT[i], LOW);
 	}
-	
+
 	// Interrupts
-	pinMode(CLOCK_INPUT, INPUT);
-	pinMode(RESET_INPUT, INPUT_PULLUP);
 	attachInterrupt(digitalPinToInterrupt(CLOCK_INPUT), isrClock, CHANGE);
 	attachInterrupt(digitalPinToInterrupt(RESET_INPUT), isrReset, FALLING);
 	
 }
 
 void loop() {
-	
-	// Read manual reset button and set the flag
-	/*if (!resetFlag) {
-		if (resetButton.read()) {
-			resetFlag = true;
-		}
-	}*/
 
+	// Mode switch
+	if (digitalRead(GATE_MODE_SWITCH) != gateMode) {
+		gateMode = digitalRead(GATE_MODE_SWITCH);
+		
+		if (DEBUG) {
+			Serial.print("Gate mode changed: ");
+			Serial.println(gateMode);
+		}
+	}
+	
 	// Clock signal changed
 	if (clockFlag) {
 		clockFlag = false;
 		
-		if (DEBUG) {
+		/*if (DEBUG) {
 			Serial.print("Clock signal changed: ");
 			Serial.println(clock);
-		}
+		}*/
 		
 		if (clock) {
 			
 			// Clock rising, update counter
 			if (resetFlag) {
-        if (DEBUG) {
-           Serial.println("RESET //////////////////////////////////");
-         }
 				resetFlag = false;
 				count = 0;
+				
+				if (DEBUG) {
+					Serial.println("Reset");
+				}
+
 			} else {
 				count++;
 			}
 			
-			if (DEBUG) {
+			/*if (DEBUG) {
 				Serial.print("Counter changed: ");
 				Serial.println(count);
-			}
+			}*/
 			
 		}
 		
@@ -115,19 +106,6 @@ void loop() {
 		
 	}
 
-
-
-/*  
-	// Mode switch
-	if (resetButton.readLongPressOnce(MODE_SWITCH_LONG_PRESS_DURATION_MS)) {
-		gateMode = !gateMode;
-		EEPROM.update(MODE_EEPROM_ADDRESS, gateMode ? 1 : 0); // Mode selection on permanent storage
-	}
-*/
-
-
-
-	
 }
 
 void processTriggerMode() {
