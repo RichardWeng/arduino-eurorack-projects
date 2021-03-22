@@ -8,8 +8,10 @@ const int RESET_INPUT = 3; // Reset signal pin, must be usable for interrupts
 
 const int GATE_MODE_SWITCH = A3; // 2 positions switch to chose between gate and trigger mode 
 
-const int DIVISIONS[] 		 { 2, 3, 4, 5, 6, 8, 16, 32 }; // Integer divisions of the input clock (max 32 values)
 const int DIVISIONS_OUTPUT[] { 4, 5, 6, 7, 8, 9, 10, 11 }; // Output pins
+
+const int NUMBER_OF_DIVISIONS = 8;
+const int DIVISIONS[NUMBER_OF_DIVISIONS] { 2, 3, 4, 5, 6, 8, 16, 32 }; // Integer divisions of the input clock
 
 const unsigned long MODE_SWITCH_LONG_PRESS_DURATION_MS = 3000; // Reset button long-press duration for trig/gate mode switch
 const unsigned long BUTTON_DEBOUNCE_DELAY = 50; // Debounce delay for all buttons
@@ -18,7 +20,6 @@ const unsigned long BUTTON_DEBOUNCE_DELAY = 50; // Debounce delay for all button
 
 //#include "lib/Button.cpp"
 
-unsigned int n = 0; // Number of divisions
 long count = -1; // Input clock counter, -1 in order to go to 0 no the first pulse
 bool gateMode = false; // TRUE if gate mode is active, FALSE if standard trig mode is active
 
@@ -33,9 +34,6 @@ void setup() {
 	// Debugging
 	if (DEBUG) Serial.begin(9600);
 	
-	// Number of divisions
-	n = sizeof(DIVISIONS) / sizeof(DIVISIONS[0]);
-	
 	// Input
 	//resetButton.init(RESET_BUTTON, BUTTON_DEBOUNCE_DELAY);
   	pinMode(CLOCK_INPUT, INPUT);
@@ -43,7 +41,7 @@ void setup() {
 	pinMode(GATE_MODE_SWITCH, INPUT_PULLUP);
 	
 	// Setup outputs
-	for (int i = 0; i < n; i++) {
+	for (int i = 0; i < NUMBER_OF_DIVISIONS; i++) {
 		pinMode(DIVISIONS_OUTPUT[i], OUTPUT);
 		digitalWrite(DIVISIONS_OUTPUT[i], LOW);
 	}
@@ -114,7 +112,7 @@ void processTriggerMode() {
 	if (clock) {
 		
 		// Rising edge, go HIGH on current divisions
-		for (int i = 0; i < n; i++) {
+		for (int i = 0; i < NUMBER_OF_DIVISIONS; i++) {
 			bool v = (count % DIVISIONS[i] == 0);
 			digitalWrite(DIVISIONS_OUTPUT[i], v ? HIGH : LOW);
 		}
@@ -122,7 +120,7 @@ void processTriggerMode() {
 	} else {
 		
 		// Falling edge, go LOW on every output
-		for (int i = 0; i < n; i++) {
+		for (int i = 0; i < NUMBER_OF_DIVISIONS; i++) {
 			digitalWrite(DIVISIONS_OUTPUT[i], LOW);
 		}
 		
@@ -133,7 +131,7 @@ void processTriggerMode() {
 void processGateMode() {
 	
 	// Keep outputs high for ~50% of divided time
-	for (int i = 0; i < n; i++) {
+	for (int i = 0; i < NUMBER_OF_DIVISIONS; i++) {
 		
 		// Go HIGH on the rising edges that corresponds to the division
 		int modulo = (count % DIVISIONS[i]);
