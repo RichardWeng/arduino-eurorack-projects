@@ -1,3 +1,2 @@
 *.hex
-*.sublime-workspace
-*.sublime-project
+*.sublime-*
