@@ -1,34 +1,28 @@
 	
 // CONFIGURATION =============================================================
 
-const bool DEBUG = true; // FALSE to disable debug messages on serial port
+const bool DEBUG = false; // FALSE to disable debug messages on serial port
 
 const int CLOCK_INPUT = 2; // Input signal pin, must be usable for interrupts
-const int CLOCK_LED = 1; // LED pin for input signal indication
 const int RESET_INPUT = 3; // Reset signal pin, must be usable for interrupts
-const int RESET_BUTTON = 12; // Reset button pin
+//const int RESET_BUTTON = 12; // Reset button pin
 
-const int DIVISIONS[] { 2, 3, 4, 5, 6, 8, 16, 32 }; // Integer divisions of the input clock (max 32 values)
+const int DIVISIONS[] 		 { 2, 3, 4, 5, 6, 8, 16, 32 }; // Integer divisions of the input clock (max 32 values)
 const int DIVISIONS_OUTPUT[] { 4, 5, 6, 7, 8, 9, 10, 11 }; // Output pins
-const int DIVISIONS_LEDS[] { 0, A5, A4, A3, A2, A1, A0, 13 }; // LEDs pins
 
 const unsigned long MODE_SWITCH_LONG_PRESS_DURATION_MS = 3000; // Reset button long-press duration for trig/gate mode switch
 const unsigned long BUTTON_DEBOUNCE_DELAY = 50; // Debounce delay for all buttons
-const unsigned long LED_MIN_DURATION_MS = 50; // Minimum "on" duration for all LEDs visibility
 
 // ===========================================================================
 
 #include <EEPROM.h>
-#include "lib/Led.cpp"
 #include "lib/Button.cpp"
 
 unsigned int n = 0; // Number of divisions
 long count = -1; // Input clock counter, -1 in order to go to 0 no the first pulse
 bool gateMode = false; // TRUE if gate mode is active, FALSE if standard trig mode is active
 
-Led clockLed; // Input LED
-Led leds[32]; // Output LEDs
-Button resetButton;
+//Button resetButton;
 
 volatile bool clock = false; // Clock signal digital reading, set in the clock ISR
 volatile bool clockFlag = false; // Clock signal change flag, set in the clock ISR
@@ -45,7 +39,7 @@ void setup() {
 	n = sizeof(DIVISIONS) / sizeof(DIVISIONS[0]);
 
 
-
+//==========================================================================
 
   /*
 	// Trig/gate mode from permanent storage
@@ -54,36 +48,34 @@ void setup() {
 
   gateMode = 0;
 
-
+//==========================================================================
  
 	
 	// Input
-	resetButton.init(RESET_BUTTON, BUTTON_DEBOUNCE_DELAY);
+	//resetButton.init(RESET_BUTTON, BUTTON_DEBOUNCE_DELAY);
 	
 	// Setup outputs (divisions and LEDs)
-	clockLed.init(CLOCK_LED, LED_MIN_DURATION_MS);
 	for (int i = 0; i < n; i++) {
-		leds[i].init(DIVISIONS_LEDS[i], LED_MIN_DURATION_MS);
 		pinMode(DIVISIONS_OUTPUT[i], OUTPUT);
 		digitalWrite(DIVISIONS_OUTPUT[i], LOW);
 	}
 	
 	// Interrupts
 	pinMode(CLOCK_INPUT, INPUT);
-	pinMode(RESET_INPUT, INPUT);
+	pinMode(RESET_INPUT, INPUT_PULLUP);
 	attachInterrupt(digitalPinToInterrupt(CLOCK_INPUT), isrClock, CHANGE);
-	attachInterrupt(digitalPinToInterrupt(RESET_INPUT), isrReset, RISING);
+	attachInterrupt(digitalPinToInterrupt(RESET_INPUT), isrReset, FALLING);
 	
 }
 
 void loop() {
 	
 	// Read manual reset button and set the flag
-	if (!resetFlag) {
+	/*if (!resetFlag) {
 		if (resetButton.read()) {
 			resetFlag = true;
 		}
-	}
+	}*/
 
 	// Clock signal changed
 	if (clockFlag) {
@@ -93,9 +85,6 @@ void loop() {
 			Serial.print("Clock signal changed: ");
 			Serial.println(clock);
 		}
-		
-		// Input LED
-		clockLed.set(clock);
 		
 		if (clock) {
 			
@@ -137,10 +126,7 @@ void loop() {
 */
 
 
-  
-	// Update LEDs
-	clockLed.loop();
-	for (int i = 0; i < n; i++) leds[i].loop();
+
 	
 }
 
@@ -153,7 +139,6 @@ void processTriggerMode() {
 		for (int i = 0; i < n; i++) {
 			bool v = (count % DIVISIONS[i] == 0);
 			digitalWrite(DIVISIONS_OUTPUT[i], v ? HIGH : LOW);
-			leds[i].set(v);
 		}
 		
 	} else {
@@ -161,7 +146,6 @@ void processTriggerMode() {
 		// Falling edge, go LOW on every output
 		for (int i = 0; i < n; i++) {
 			digitalWrite(DIVISIONS_OUTPUT[i], LOW);
-			leds[i].off();
 		}
 		
 	}
@@ -177,7 +161,6 @@ void processGateMode() {
 		int modulo = (count % DIVISIONS[i]);
 		if (clock && modulo == 0) {
 			digitalWrite(DIVISIONS_OUTPUT[i], HIGH);
-			leds[i].on();
 		}
 		
 		// Go LOW on rising edges for even divisions and falling edges for odd divisions,
@@ -186,7 +169,6 @@ void processGateMode() {
 			bool divisionIsOdd = (DIVISIONS[i] % 2 != 0);
 			if ((clock && !divisionIsOdd) || (!clock && divisionIsOdd)) {
 				digitalWrite(DIVISIONS_OUTPUT[i], LOW);
-				leds[i].off();
 			}
 		}
 		
