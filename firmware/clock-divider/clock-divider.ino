@@ -39,7 +39,7 @@ void setup() {
 	if (DEBUG) Serial.begin(9600);
 	
 	// Input
-  	pinMode(CLOCK_INPUT, INPUT);
+  	pinMode(CLOCK_INPUT, INPUT_PULLUP);
 	pinMode(RESET_INPUT, INPUT_PULLUP);
 	pinMode(DIV_SELECT_MSB, INPUT_PULLUP);
 	pinMode(DIV_SELECT_LSB, INPUT_PULLUP);
@@ -162,7 +162,7 @@ void processGateMode() {
 }
 
 void isrClock() {
-	clock = (digitalRead(CLOCK_INPUT) == HIGH);
+	clock = (digitalRead(CLOCK_INPUT) == LOW); //remember clock signal is reversed to use internal pullup resistor
 	clockFlag = true;
 }
 
