@@ -24,7 +24,6 @@ const byte DEBOUNCE_DELAY = 50; // Debounce delay for all buttons
 
 // ===========================================================================
 
-bool reset_input = 0,		old_reset_input = 0;
 bool gateMode_switch = 0,	old_gateMode_switch = 0;	// If 1, gate mode is active, if 0, standard trig mode is active
 bool divSelect1_switch = 0,	old_divSelect1_switch = 0;
 bool divSelect2_switch = 0,	old_divSelect2_switch = 0;
@@ -61,9 +60,6 @@ void setup() {
 	attachInterrupt(digitalPinToInterrupt(CLOCK_INPUT), isrClock, CHANGE);
 	attachInterrupt(digitalPinToInterrupt(RESET_INPUT), isrReset, FALLING);
 
-	// Initial state for reset input
-	old_reset_input = digitalRead(RESET_INPUT);
-
 	// Read divisions set switch
 	divSelect1_switch = digitalRead(DIVSELECT1_SWITCH);
 	divSelect2_switch = digitalRead(DIVSELECT2_SWITCH);
@@ -89,9 +85,7 @@ void loop() {
 	}
 
 	// Divisions sets switch
-	if ((divSelect1_switch != old_divSelect1_switch)|(divSelect2_switch != old_divSelect2_switch)) {
-		old_divSelect1_switch = divSelect1_switch;
-		old_divSelect2_switch = divSelect2_switch;
+	if ((divSelect1_switch != old_divSelect1_switch)|(divSelect2_switch != old_divSelect2_switch)) { // If switch changed
 		// Update division set
 		readDivisionsSet();
 	}
@@ -188,6 +182,10 @@ void processGateMode() {
 void readDivisionsSet() {
 	divisionsSet = !divSelect2_switch;
 	divisionsSet |= !divSelect1_switch << 1;
+	
+	old_divSelect1_switch = divSelect1_switch;
+	old_divSelect2_switch = divSelect2_switch;
+	
 	if (DEBUG) {
 		Serial.print("Divisions set changed: ");
 		Serial.println(divisionsSet);
@@ -200,7 +198,8 @@ void isrClock() {
 }
 
 void isrReset() {
-
-
-	resetFlag = true;
+	if (millis() >= checktime) { // Debounce
+		resetFlag = true;
+		checktime = millis() + DEBOUNCE_DELAY;
+	}
 }
