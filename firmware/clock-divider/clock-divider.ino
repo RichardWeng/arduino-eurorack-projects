@@ -69,28 +69,6 @@ void setup() {
 
 void loop() {
 
-	// Read switches
-	gateMode_switch = digitalRead(GATEMODE_SWITCH);
-	divSelect1_switch = digitalRead(DIVSELECT1_SWITCH);
-	divSelect2_switch = digitalRead(DIVSELECT2_SWITCH);
-
-
-	// Mode switch
-	if (gateMode_switch != old_gateMode_switch) {
-		old_gateMode_switch = gateMode_switch;
-		if (DEBUG) {
-			Serial.print("Gate mode changed: ");
-			Serial.println(gateMode_switch);
-		}
-	}
-
-	// Divisions sets switch
-	if ((divSelect1_switch != old_divSelect1_switch)|(divSelect2_switch != old_divSelect2_switch)) { // If switch changed
-		// Update division set
-		readDivisionsSet();
-	}
-
-	
 	// Clock signal changed
 	if (clockFlag) {
 		clockFlag = false;
@@ -99,6 +77,27 @@ void loop() {
 			Serial.print("Clock signal changed: ");
 			Serial.println(clock);
 		}*/
+
+		// Read switches
+		gateMode_switch = digitalRead(GATEMODE_SWITCH);
+		divSelect1_switch = digitalRead(DIVSELECT1_SWITCH);
+		divSelect2_switch = digitalRead(DIVSELECT2_SWITCH);
+
+
+		// Mode switch
+		if (gateMode_switch != old_gateMode_switch) {
+			old_gateMode_switch = gateMode_switch;
+			if (DEBUG) {
+				Serial.print("Gate mode changed: ");
+				Serial.println(gateMode_switch);
+			}
+		}
+
+		// Divisions sets switch
+		if ((divSelect1_switch != old_divSelect1_switch)|(divSelect2_switch != old_divSelect2_switch)) { // If switch changed
+			// Update division set
+			readDivisionsSet();
+		}
 
 		if (clock) {
 			
