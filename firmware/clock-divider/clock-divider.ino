@@ -1,14 +1,14 @@
 	
 // CONFIGURATION =============================================================
 
-const bool DEBUG = false; // FALSE to disable debug messages on serial port
+const bool DEBUG = true; // FALSE to disable debug messages on serial port
 
 const byte CLOCK_INPUT = 2; // Input signal pin, must be usable for interrupts
 const byte RESET_INPUT = 3; // Reset signal pin, must be usable for interrupts
 
-const byte DIV_SELECT_MSB = A1;
-const byte DIV_SELECT_LSB = A2;
-const byte GATE_MODE_SWITCH = A3; // 2 positions switch to chose between gate and trigger mode 
+const byte DIVSELECT1_SWITCH = A1;
+const byte DIVSELECT2_SWITCH = A2;
+const byte GATEMODE_SWITCH = A3; // 2 positions switch to chose between gate and trigger mode 
 
 const byte DIVISIONS_OUTPUT[] { 4, 5, 6, 7, 8, 9, 10, 11 }; // Output pins
 
@@ -17,16 +17,23 @@ const word DIVISIONS[][NUMBER_OF_DIVISIONS] {
 	{ 	1,	2,	4,	8, 	16,  32,  64, 128 },
 	{ 	1,	2,	3,	5, 	 7,  11,  13,  17 },
 	{ 	1,	2,	3,	4, 	 5,   6,   7,   8 },
-	{ 	0,	0,	0,	0, 	 0,   0,   0,	0 }
+	{ 	0,	0,	0,	0, 	 0,   0,   0,	0 } // This set is not implemented in hardware
 }; // Integer divisions of the input clock
 
 const byte DEBOUNCE_DELAY = 50; // Debounce delay for all buttons
 
 // ===========================================================================
 
-byte divisionsSet = 0; //The set of divisions in use, from 0 to 3. Coded in binary by DIV_SELECT inputs. Set 3 not implemented in hardware (needs 1P4T switch).
+bool reset_input = 0,		old_reset_input = 0;
+bool gateMode_switch = 0,	old_gateMode_switch = 0;	// If 1, gate mode is active, if 0, standard trig mode is active
+bool divSelect1_switch = 0,	old_divSelect1_switch = 0;
+bool divSelect2_switch = 0,	old_divSelect2_switch = 0;
+
+byte divisionsSet = 0; // The set of divisions in use, from 0 to 3. Coded in binary by DIV_SELECT inputs. Set 3 not implemented in hardware (needs 1P4T switch).
+
 long count = -1; // Input clock counter, -1 in order to go to 0 on the first pulse
-bool gateMode = false; // TRUE if gate mode is active, FALSE if standard trig mode is active
+
+unsigned long checktime = 0;
 
 volatile bool clock = false; // Clock signal digital reading, set in the clock ISR
 volatile bool clockFlag = false; // Clock signal change flag, set in the clock ISR
@@ -40,9 +47,9 @@ void setup() {
 	// Input
   	pinMode(CLOCK_INPUT, INPUT_PULLUP);
 	pinMode(RESET_INPUT, INPUT_PULLUP);
-	pinMode(DIV_SELECT_MSB, INPUT_PULLUP);
-	pinMode(DIV_SELECT_LSB, INPUT_PULLUP);
-	pinMode(GATE_MODE_SWITCH, INPUT_PULLUP);
+	pinMode(DIVSELECT1_SWITCH, INPUT_PULLUP);
+	pinMode(DIVSELECT2_SWITCH, INPUT_PULLUP);
+	pinMode(GATEMODE_SWITCH, INPUT_PULLUP);
 	
 	// Setup outputs
 	for (byte i = 0; i < NUMBER_OF_DIVISIONS; i++) {
@@ -53,34 +60,52 @@ void setup() {
 	// Interrupts
 	attachInterrupt(digitalPinToInterrupt(CLOCK_INPUT), isrClock, CHANGE);
 	attachInterrupt(digitalPinToInterrupt(RESET_INPUT), isrReset, FALLING);
-	
+
+	// Initial state for reset input
+	old_reset_input = digitalRead(RESET_INPUT);
+
+	// Read divisions set switch
+	divSelect1_switch = digitalRead(DIVSELECT1_SWITCH);
+	divSelect2_switch = digitalRead(DIVSELECT2_SWITCH);
+	readDivisionsSet();
+
 }
 
 void loop() {
 
+	// Read switches
+	gateMode_switch = digitalRead(GATEMODE_SWITCH);
+	divSelect1_switch = digitalRead(DIVSELECT1_SWITCH);
+	divSelect2_switch = digitalRead(DIVSELECT2_SWITCH);
+
+
 	// Mode switch
-	if (digitalRead(GATE_MODE_SWITCH) != gateMode) {
-		gateMode = digitalRead(GATE_MODE_SWITCH);
-		
+	if (gateMode_switch != old_gateMode_switch) {
+		old_gateMode_switch = gateMode_switch;
 		if (DEBUG) {
 			Serial.print("Gate mode changed: ");
-			Serial.println(gateMode);
+			Serial.println(gateMode_switch);
 		}
 	}
+
+	// Divisions sets switch
+	if ((divSelect1_switch != old_divSelect1_switch)|(divSelect2_switch != old_divSelect2_switch)) {
+		old_divSelect1_switch = divSelect1_switch;
+		old_divSelect2_switch = divSelect2_switch;
+		// Update division set
+		readDivisionsSet();
+	}
+
 	
 	// Clock signal changed
 	if (clockFlag) {
 		clockFlag = false;
 		
-		if (DEBUG) {
+		/*if (DEBUG) {
 			Serial.print("Clock signal changed: ");
 			Serial.println(clock);
-		}
+		}*/
 
-		//Check the choosen divisions set
-		divisionsSet = !digitalRead(DIV_SELECT_LSB);
-		divisionsSet |= !digitalRead(DIV_SELECT_MSB) << 1;
-		
 		if (clock) {
 			
 			// Clock rising, update counter
@@ -96,15 +121,15 @@ void loop() {
 				count++;
 			}
 			
-			if (DEBUG) {
+			/*if (DEBUG) {
 				Serial.print("Counter changed: ");
 				Serial.println(count);
-			}
+			}*/
 			
 		}
 		
 		// Update outputs according to current trig/gate mode
-		if (gateMode) {
+		if (gateMode_switch) {
 			processGateMode();
 		} else {
 			processTriggerMode();
@@ -160,11 +185,22 @@ void processGateMode() {
 	
 }
 
+void readDivisionsSet() {
+	divisionsSet = !divSelect2_switch;
+	divisionsSet |= !divSelect1_switch << 1;
+	if (DEBUG) {
+		Serial.print("Divisions set changed: ");
+		Serial.println(divisionsSet);
+	}
+}
+
 void isrClock() {
 	clock = (digitalRead(CLOCK_INPUT) == LOW); //remember clock signal is reversed to use internal pullup resistor
 	clockFlag = true;
 }
 
 void isrReset() {
+
+
 	resetFlag = true;
 }
