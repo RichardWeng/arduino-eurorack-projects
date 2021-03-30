@@ -6,11 +6,11 @@ const bool DEBUG = true; // FALSE to disable debug messages on serial port
 const byte CLOCK_INPUT = 2; // Input signal pin, must be usable for interrupts
 const byte RESET_INPUT = 3; // Reset signal pin, must be usable for interrupts
 
-const byte DIVSELECT1_SWITCH = A1;
-const byte DIVSELECT2_SWITCH = A2;
-const byte GATEMODE_SWITCH = A3; // 2 positions switch to chose between gate and trigger mode 
+const byte DIVSELECT1_SWITCH = 4;
+const byte DIVSELECT2_SWITCH = 5;
+const byte GATEMODE_SWITCH = A1; // 2 positions switch to chose between gate and trigger mode 
 
-const byte DIVISIONS_OUTPUT[] { 4, 5, 6, 7, 8, 9, 10, 11 }; // Output pins
+const byte DIVISIONS_OUTPUT[] { 6, 7, 8, 9, 10, 11, 12, 13 }; // Output pins
 
 const byte NUMBER_OF_DIVISIONS = 8;
 const word DIVISIONS[][NUMBER_OF_DIVISIONS] {
