@@ -21,10 +21,6 @@ Features
 
 Circuit
 --------
+see hardware folder
 
-Original joeSeggiola schematic
-
-![](docs/schematic.png)
-
-Pictures
 --------
